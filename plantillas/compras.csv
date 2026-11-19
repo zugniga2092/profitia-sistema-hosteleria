@@ -1,0 +1,3 @@
+﻿fecha_factura,proveedor,categoria,importe_sin_iva,numero_factura,notas
+EJEMPLO 03/11/2026,Proveedor de carne,comida,380.00,F-001,categorias: comida / bebida / otros
+EJEMPLO 04/11/2026,Distribuidor de bebidas,bebida,210.00,F-002,borrar esta fila

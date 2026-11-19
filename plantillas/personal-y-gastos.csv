@@ -1,0 +1,12 @@
+﻿mes,concepto,tipo,importe_sin_iva,notas
+EJEMPLO 2026-11,Sueldos brutos,personal,0.00,total del mes sin nombres
+EJEMPLO 2026-11,Seguridad social a cargo de la empresa,personal,0.00,lo da la gestoria
+EJEMPLO 2026-11,Sueldo del dueno si trabaja en el local,personal,0.00,ponlo aunque no te lo pagues
+EJEMPLO 2026-11,Alquiler,gasto general,0.00,
+EJEMPLO 2026-11,Luz gas y agua,gasto general,0.00,
+EJEMPLO 2026-11,Seguros,gasto general,0.00,
+EJEMPLO 2026-11,Gestoria,gasto general,0.00,
+EJEMPLO 2026-11,Comisiones de tarjetas y plataformas,gasto general,0.00,
+EJEMPLO 2026-11,Mantenimiento y reparaciones,gasto general,0.00,
+EJEMPLO 2026-11,Marketing,gasto general,0.00,
+EJEMPLO 2026-11,Otros,gasto general,0.00,
