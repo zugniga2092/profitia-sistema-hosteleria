@@ -133,4 +133,4 @@ Reglas:
 - **Reparto:** añade los temas «temperatura del pedido» y «pedido incompleto».
 - **Varios locales:** añade la columna «local» y compara los temas entre ellos.
 
-Has terminado las 5 herramientas. Vuelve al [README](README.md).
+Siguiente: [06-la-carta-que-vende.md](06-la-carta-que-vende.md).

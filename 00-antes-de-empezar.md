@@ -4,7 +4,7 @@
 
 - [ ] **Una hoja de cálculo.** Google Sheets (gratis) o Excel.
 - [ ] **Un asistente de IA** que admita archivos y «proyectos» (un espacio donde guardas tus documentos e instrucciones para no repetirlos cada vez). Sirven Claude, ChatGPT y similares.
-- [ ] **Una carpeta para todo.** Créala en tu ordenador o en Google Drive con este nombre: `Sistema - [nombre de tu local]`. Dentro, cinco subcarpetas: `1-panel`, `2-costes`, `3-lunes`, `4-marca`, `5-resenas`.
+- [ ] **Una carpeta para todo.** Créala en tu ordenador o en Google Drive con este nombre: `Sistema - [nombre de tu local]`. Dentro, siete subcarpetas: `1-panel`, `2-costes`, `3-lunes`, `4-marca`, `5-resenas`, `6-carta`, `7-redes`.
 - [ ] **Una hora tranquila** para la primera herramienta. No lo montes en mitad de un servicio.
 
 ## Los datos que vas a reunir

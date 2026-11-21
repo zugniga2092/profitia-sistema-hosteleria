@@ -132,6 +132,47 @@ def crear(ruta, datos=None):
     pla.conditional_formatting.add(f"H2:H{N_PLA}", CellIsRule(operator="equal", formula=['"REVISAR"'], fill=ROJO))
     pla.conditional_formatting.add(f"J2:J{N_PLA}", FormulaRule(formula=['LEN(J2)>0'], fill=NARANJA))
 
+    # ---------- Carta (herramienta 6: ingeniería de carta) ----------
+    # Método de Kasavana y Smith (1982): dentro de cada sección de la carta, un plato es «muy vendido» si su peso
+    # en las ventas llega al 70 % del reparto igualitario (0,7 / nº de platos) y «deja mucho» si su margen por
+    # ración llega al margen medio de la sección ponderado por las ventas.
+    car = wb.create_sheet("Carta", 1)
+    cabecera(car, ["Plato", "Sección de la carta", "Sección usada", "Raciones al mes", "Margen por ración", "Cuenta",
+                   "Margen × raciones", "Peso en las ventas", "¿Muy vendido?", "¿Deja mucho?", "Grupo", "Qué hacer"],
+             [30, 18, 16, 12, 13, 8, 14, 12, 11, 11, 24, 52])
+    rng = lambda col: f"${col}$2:${col}${N_PLA}"
+    for r in range(2, N_PLA + 1):
+        car[f"A{r}"] = f'=IF(Platos!A{r}="","",Platos!A{r})'
+        car[f"C{r}"] = f'=IF(A{r}="","",IF(B{r}="","Toda la carta",B{r}))'
+        car[f"D{r}"] = f'=IF(OR(A{r}="",Platos!C{r}=""),"",Platos!C{r})'
+        car[f"E{r}"] = f'=IF(A{r}="","",Platos!F{r})'
+        car[f"F{r}"] = f'=IF(AND(ISNUMBER(D{r}),ISNUMBER(E{r})),1,0)'
+        car[f"G{r}"] = f'=IF(F{r}=1,D{r}*E{r},"")'
+        tot = f'SUMIFS({rng("D")},{rng("C")},C{r},{rng("F")},1)'
+        n = f'COUNTIFS({rng("C")},C{r},{rng("F")},1)'
+        car[f"H{r}"] = f'=IF(F{r}=0,"",IF({tot}=0,"",D{r}/{tot}))'
+        car[f"I{r}"] = f'=IF(OR(H{r}="",{n}<2),"",IF(H{r}>=0.7/{n},"Sí","No"))'
+        car[f"J{r}"] = f'=IF(OR(H{r}="",{n}<2),"",IF(E{r}>=SUMIFS({rng("G")},{rng("C")},C{r},{rng("F")},1)/{tot},"Sí","No"))'
+        car[f"K{r}"] = (f'=IF(A{r}="","",IF(F{r}=0,"Faltan datos",IF({n}<2,"Sección con un solo plato",'
+                        f'IF(AND(I{r}="Sí",J{r}="Sí"),"Estrella",IF(I{r}="Sí","Muy vendido, deja poco",'
+                        f'IF(J{r}="Sí","Deja mucho, se vende poco","Se vende poco y deja poco"))))))')
+        car[f"L{r}"] = (f'=IF(K{r}="Estrella","Protégelo: buen sitio en la carta, misma ración y calidad.",'
+                        f'IF(K{r}="Muy vendido, deja poco","Mejora su margen: revisa ración y coste, o súbelo poco a poco.",'
+                        f'IF(K{r}="Deja mucho, se vende poco","Dale visibilidad: mejor sitio, mejor descripción, recomiéndalo en sala.",'
+                        f'IF(K{r}="Se vende poco y deja poco","Cámbialo o quítalo, salvo que tenga un motivo para estar.",'
+                        f'IF(K{r}="Faltan datos","Pon las raciones vendidas y revisa su escandallo en la pestaña Platos.",'
+                        f'IF(K{r}="Sección con un solo plato","Compáralo dentro de una sección con más platos.",""))))))')
+        car[f"E{r}"].number_format = car[f"G{r}"].number_format = EUROS
+        car[f"D{r}"].number_format = "#,##0"
+        car[f"H{r}"].number_format = PCT
+        for col in "ACDEFGHIJKL":
+            car[f"{col}{r}"].fill = GRIS
+        car[f"B{r}"].fill = AMARILLO
+    car.column_dimensions["F"].hidden = car.column_dimensions["G"].hidden = True
+    for texto, color in (("Estrella", VERDE), ("Muy vendido, deja poco", NARANJA), ("Deja mucho, se vende poco", PatternFill("solid", fgColor="DCE9F9")),
+                         ("Se vende poco y deja poco", ROJO)):
+        car.conditional_formatting.add(f"K2:K{N_PLA}", CellIsRule(operator="equal", formula=[f'"{texto}"'], fill=color))
+
     if datos:
         for i, f in enumerate(datos["ingredientes"], start=2):
             nombre, prov, formato, precio, cantidad, unidad, merma, fecha, nota = f
@@ -141,6 +182,7 @@ def crear(ruta, datos=None):
             esc[f"A{i}"], esc[f"B{i}"], esc[f"C{i}"] = plato, ingrediente, cantidad
         for i, (plato, precio, raciones) in enumerate(datos["platos"], start=2):
             pla[f"A{i}"], pla[f"B{i}"], pla[f"C{i}"] = plato, precio, raciones
+            car[f"B{i}"] = datos["secciones"].get(plato)
 
     os.makedirs(os.path.dirname(ruta), exist_ok=True)
     wb.save(ruta)
@@ -183,11 +225,15 @@ def datos_inventados():
     ]
     platos = [
         ("Entrecot a la brasa", 24.00, 310), ("Secreto con patatas", 17.50, 240), ("Pollo asado", 13.50, 280),
-        ("Merluza a la plancha", 18.00, 190), ("Arroz de gamba roja", 19.50, 260), ("Ensalada de la casa", 9.50, 330),
+        ("Merluza a la plancha", 21.00, 90), ("Arroz de gamba roja", 19.50, 70), ("Ensalada de la casa", 9.50, 330),
         ("Tortilla de patata", 8.00, 420), ("Tarta de chocolate", 6.50, 300),
     ]
+    secciones = {"Ensalada de la casa": "Entrantes", "Tortilla de patata": "Entrantes",
+                 "Entrecot a la brasa": "Principales", "Secreto con patatas": "Principales", "Pollo asado": "Principales",
+                 "Merluza a la plancha": "Principales", "Arroz de gamba roja": "Principales",
+                 "Tarta de chocolate": "Postres"}   # postres con un solo plato a propósito: enseña el aviso
     return {"nombre": "Restaurante de Ejemplo (datos inventados)", "objetivo": 0.30, "hoy": d(2026, 11, 19),
-            "ingredientes": ingredientes, "escandallos": escandallos, "platos": platos}
+            "ingredientes": ingredientes, "escandallos": escandallos, "platos": platos, "secciones": secciones}
 
 
 if __name__ == "__main__":
